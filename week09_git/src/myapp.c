@@ -1,9 +1,24 @@
-#include<stdio.h>
+#include "myops.h"
 
 double calculate(char* op, double a, double b){
-    double temp = 0;
     printf("Calculating.....\n");
-    return temp;
+    
+    if(strcmp(op, "+") == 0){
+        return myadd(a, b);
+    }
+    else if(strcmp(op, "-") == 0){
+        return mysub(a, b);
+    }
+    else if(strcmp(op, "*") == 0){
+        return mymul(a, b);
+    }
+    else if(strcmp(op, "/") == 0){
+        return mydiv(a, b);
+    }
+    else{
+        printf("Unsupported operatin %s\n", op);
+        return 0;
+    }
 }
 
 int main(){
