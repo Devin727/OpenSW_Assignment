@@ -4,3 +4,5 @@
 **/*.dylib
 .DS_store
 **/.DS_store
+
+practice/

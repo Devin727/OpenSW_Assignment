@@ -38,7 +38,7 @@ int main(void){
         // 1
         sigprocmask(SIG_BLOCK, &block_set, NULL);
         data = ones;
-        // unser
+        // unset
         sigprocmask(SIG_UNBLOCK, &block_set, NULL);
 
         // 0

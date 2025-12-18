@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/uio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -10,68 +9,55 @@
 #define BUF_SIZE 32
 
 int main(int argc, char* argv[]){
-
     if(argc < 3){
-        printf("Usage : %s [source] [dest1] [dest2] ...\n", argv[0]);
-        exit(0);
+        printf("Usage: %s [source file] [destination file]...\n", argv[0]);
+        exit(1);
     }
 
-    int fd_src = open(argv[1], O_RDONLY);
-    if(fd_src == -1){
-        perror("open error");
-        return 1;
+    int src_fd = open(argv[1], O_RDONLY);
+    if(src_fd == -1){
+        perror("open source error");
+        exit(1);
     }
 
-    int dst_cnt = argc - 2;
+    int num_files = argc - 2;
+    int* dest_fd_list = (int*)malloc(sizeof(int) * num_files);
 
-    int* fd_dst = malloc(sizeof(int) * dst_cnt);
-    if(fd_dst == NULL){
-        perror("malloc error");
-        close(fd_src);
-        return 1;
+    for(int i = 0; i < num_files; i++){
+        dest_fd_list[i] = open(argv[i + 2], O_WRONLY | O_CREAT, 0644);
+        if(dest_fd_list[i] == -1){
+            perror(argv[i + 2]);
+        }
     }
 
-    for(int i = 0 ; i < dst_cnt; i++){
-        fd_dst[i] = open(argv[i+2], O_WRONLY | O_CREAT, 0644);
-    }
-
-    char buf[BUF_SIZE];
-    ssize_t nread;
+    char* readStr = (char*)malloc(BUF_SIZE);
+    ssize_t read_result;
 
     while(1){
+        read_result = read(src_fd, readStr, BUF_SIZE);
 
-        nread = read(fd_src, buf, BUF_SIZE);
-
-        if(nread == -1){
+        if(read_result == -1){
             perror("read error");
             break;
         }
-        
-        if(nread == 0){
+        if(read_result == 0){         
             break;
         }
 
-        if(write(STDOUT_FILENO, buf, nread) == -1){
-            perror("stdout write error");
-            break;
-        }
-
-        for(int i = 0; i < dst_cnt; i++){
-            if(write(fd_dst[i], buf, nread) == -1){
-                perror("write error");
-                nread = -1;
-                break;
+        for(int i = 0; i < num_files; i++){
+            if(write(dest_fd_list[i], readStr, read_result) == -1){ 
+                perror("dest write error");
             }
         }
-
-        if(nread == -1) break;
     }
 
-    close(fd_src);
-    for(int i = 0; i < dst_cnt; i++){
-        close(fd_dst[i]);
+    close(src_fd);
+    for(int i = 0; i < num_files; i++){
+        close(dest_fd_list[i]);
     }
-    free(fd_dst);
+
+    free(readStr);
+    free(dest_fd_list);
 
     return 0;
 }

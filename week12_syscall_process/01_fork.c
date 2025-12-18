@@ -25,7 +25,5 @@ int main(void){
         printf("Parent process PPID: %lu\n",(unsigned long) getppid());
 
     }
-
     return 0;
 }
-

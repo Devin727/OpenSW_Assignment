@@ -1,26 +1,28 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
 
-#define BUF_SIZE 128
+#define BUF_SZ 128
 
 int main(int argc, char* argv[]){
-
-    if (argc != 1){
-        printf("Usage: %s\n", argv[0]);
+    if(argc != 1){
+        printf("Usage : %s\n", argv[0]);
         exit(0);
     }
 
-    char buf[BUF_SIZE];
+    char* readStr = (char*)malloc(sizeof(char) * BUF_SZ);
     ssize_t read_str;
 
     while(1){
-        
-        read_str = read(STDIN_FILENO, buf, BUF_SIZE);
-
+        read_str = read(STDIN_FILENO, readStr, BUF_SZ);
+    
         if(read_str == -1){
-            printf("read error");
+            perror("read error");
             break;
         }
 
@@ -28,14 +30,12 @@ int main(int argc, char* argv[]){
             break;
         }
 
-        ssize_t write_srt = write(STDOUT_FILENO, buf, read_str);
+        ssize_t write_str = write(STDOUT_FILENO, readStr, read_str);
 
-        if(write_srt == -1){
+        if(write_str == -1){
             perror("write error");
             break;
         }
-
     }
-
-    return 0;
+    free(readStr);
 }

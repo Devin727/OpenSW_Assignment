@@ -47,9 +47,25 @@ void sigalrm_handler(int sig){
 
 int main(void){
     
-    signal(SIGINT, sigint_handler);
-    signal(SIGQUIT, sigquit_handler);
-    signal(SIGALRM, sigalrm_handler);
+    struct sigaction sa_int;
+    struct sigaction sa_quit;
+    struct sigaction sa_alrm;
+
+    sa_int.sa_handler = sigint_handler;
+    sigemptyset(&sa_int.sa_mask);
+    sa_int.sa_flags = 0;
+
+    sa_quit.sa_handler = sigquit_handler;
+    sigemptyset(&sa_quit.sa_mask);
+    sa_quit.sa_flags = 0;
+
+    sa_alrm.sa_handler = sigalrm_handler;
+    sigemptyset(&sa_alrm.sa_mask);
+    sa_alrm.sa_flags = 0;
+
+    sigaction(SIGINT, &sa_int, NULL);
+    sigaction(SIGQUIT, &sa_quit, NULL);
+    sigaction(SIGALRM, &sa_alrm, NULL);
 
     alarm(3);
 
